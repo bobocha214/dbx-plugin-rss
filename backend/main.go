@@ -35,7 +35,7 @@ type Plugin struct {
 }
 
 func main() {
-	dataDir, err := dbxpluginsdk.EnsureDataDir()
+	dataDir, err := ensurePluginDataDir()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "ensure plugin data dir:", err)
 		os.Exit(1)
