@@ -1,0 +1,8 @@
+.dbx-dev/
+dist/
+dist-*/
+backend/rss/.tmp
+backend/*.exe
+.test
+.docs/
+.gocache/

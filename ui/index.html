@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>RSS 阅读器</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./library.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="订阅导航">
+      <div class="brand"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="6" cy="18" r="1.8" fill="currentColor"/><path d="M6 11a7 7 0 0 1 7 7M6 5a13 13 0 0 1 13 13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span><div><strong>RSS 阅读器</strong><small>你的每日阅读空间</small></div></div>
+      <button id="addFeed" class="primary add-button" type="button"><span aria-hidden="true">＋</span> 添加订阅</button><div class="sidebar-quick-actions" aria-label="订阅工具"><button id="importOPML" class="secondary quick-button" type="button" title="选择 OPML 文件并导入订阅">导入</button><input id="opmlFile" type="file" accept=".opml,.xml,text/xml,application/xml" hidden><button id="exportOPML" class="secondary quick-button" type="button" title="选择保存位置并导出 OPML">导出</button><button id="settingsButton" class="secondary quick-button" type="button" title="打开设置中心">设置</button></div>
+      <nav id="feeds" class="feeds"></nav>
+      <div class="sidebar-footer"><span class="local-dot"></span> 数据仅保存在本机 <span class="version">v0.1.0</span></div>
+    </aside>
+    <main class="workspace">
+      <header class="topbar">
+        <div class="page-heading"><span class="page-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 5.5c3.5-1 5.5-.5 8 1.5 2.5-2 4.5-2.5 8-1.5v14c-3.5-1-5.5-.5-8 1.5-2.5-2-4.5-2.5-8-1.5zM12 7v14"/></svg></span><div class="heading"><h1 id="viewTitle">全部文章</h1><p class="page-description">管理订阅与阅读内容，让信息有序汇集。</p></div></div>
+        <button id="refreshAll" class="secondary" type="button"><span class="refresh-icon" aria-hidden="true">↻</span><span>刷新订阅</span></button>
+      </header>
+      <div class="workspace-nav"><div class="view-tabs" role="tablist" aria-label="文章筛选"><button id="viewAll" class="view-tab active" role="tab" aria-selected="true" type="button">全部文章</button><button id="viewUnread" class="view-tab" role="tab" aria-selected="false" type="button">未读文章</button></div><span class="storage-label"><span class="local-dot"></span> 本机存储</span></div>
+      <div class="statusbar"><span id="status" role="status" aria-live="polite">正在加载订阅…</span><span id="feedCount" class="legacy-feed-count" aria-hidden="true">0 个订阅源</span></div>
+      <div class="reading-layout">
+        <section class="article-panel" aria-label="文章列表">
+          <div class="list-tools"><label class="search-field"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="搜索文章标题、内容" aria-label="搜索文章" /></label><label class="unread-filter"><input id="unreadOnly" type="checkbox" />仅未读</label><button id="markAllRead" class="secondary mark-read-button" type="button">全部标为已读</button></div>
+          <div class="list-summary"><span id="articleCount">0 篇文章</span><span id="listOrder">最新发布优先</span></div>
+          <div id="articles" class="articles"></div>
+          <div id="empty" class="empty" hidden><span class="empty-icon" aria-hidden="true">≋</span><h2 id="emptyTitle">开始你的第一份订阅</h2><p id="emptyText">添加 RSS 或 Atom 地址，让喜欢的内容在这里相遇。</p><button id="emptyAdd" class="secondary" type="button">添加订阅</button></div>
+          <button id="loadMore" class="load-more secondary" type="button" hidden>加载更多文章</button>
+        </section>
+        <article id="reader" class="reader" aria-label="文章阅读区"><div class="reader-welcome"><div class="welcome-mark" aria-hidden="true">▤</div><h2>选择文章，开始阅读</h2><p>点击左侧文章查看内容。<br />阅读记录会自动保存在本机。</p><div class="reader-hint"><strong>订阅小提示</strong><span>支持 RSS 2.0、RSS 1.0 / RDF 和 Atom 1.0。请添加网站的订阅源地址。</span></div></div></article>
+      </div>
+    </main>
+  </div>
+  <div id="addDialog" class="modal-backdrop" hidden>
+    <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+      <div class="dialog-header"><h2 id="dialogTitle">添加订阅</h2><button id="closeDialog" class="icon-button" type="button" aria-label="关闭">×</button></div>
+      <p>输入网站提供的 RSS 或 Atom 订阅地址。</p>
+      <div id="addForm" class="subscription-fields"><label for="feedUrl">订阅地址</label><input id="feedUrl" type="url" placeholder="https://example.com/feed.xml" required /><label for="addGroupSelect">所属分组</label><select id="addGroupSelect"><option value="">未分组</option><option value="__new__">＋ 新建分组</option></select><label id="addNewGroupField" for="addNewGroup" hidden>新分组名称</label><input id="addNewGroup" type="text" placeholder="例如：技术、设计" hidden /><p class="format-help">支持 RSS 2.0、RSS 1.0 / RDF 和 Atom 1.0，请使用订阅源地址。</p><p id="addError" class="error-text" role="alert"></p><div class="dialog-actions"><button id="cancelAdd" class="secondary" type="button">取消</button><button id="submitAdd" class="primary" type="button">添加订阅</button></div></div>
+    </section>
+  </div>
+  <div id="deleteDialog" class="modal-backdrop" hidden>
+    <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="deleteTitle"><h2 id="deleteTitle">删除订阅？</h2><p id="deleteText"></p><div class="dialog-actions"><button id="cancelDelete" class="secondary" type="button">保留订阅</button><button id="confirmDelete" class="danger" type="button">删除订阅</button></div></section>
+  </div>
+  <div id="settingsDialog" class="modal-backdrop" hidden><section class="dialog" role="dialog" aria-modal="true"><div class="dialog-header"><h2>设置中心</h2><button id="closeSettings" class="icon-button" type="button">×</button></div><p>设置会保存在本机，并用于所有订阅源。</p><label><input id="showImages" type="checkbox"> 显示文章图片</label><label>图片最大宽度 <input id="imageWidth" type="number" min="200" max="1600" step="10"></label><label>列表密度 <select id="density"><option value="comfortable">舒适</option><option value="compact">紧凑</option></select></label><label>获取超时（秒） <input id="timeoutSeconds" type="number" min="5" max="120"></label><label>每源保留文章数（0 不限） <input id="maxArticles" type="number" min="0" max="10000"></label><label>打开原文 <select id="browserChoice"></select></label><p id="settingsError" class="error-text"></p><div class="dialog-actions"><button id="cancelSettings" class="secondary" type="button">取消</button><button id="saveSettings" class="primary" type="button">保存设置</button></div></section></div>
+  <script src="./reading.js"></script>
+  <script src="./library.js"></script>
+  <script src="./app.js" type="module"></script>
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>
